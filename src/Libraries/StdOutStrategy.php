@@ -1,13 +1,8 @@
 <?php
 
-namespace Language;
+namespace Language\Libraries;
 
-interface OutputStrategy
-{
-    public function print($data);
-}
-
-class StdOutStrategy implements OutputStrategy
+class StdOutStrategy implements OutputInterface
 {
     public function print($data, $indent = 0)
     {

@@ -1,13 +1,10 @@
 <?php
 
-namespace Language;
+namespace Language\Libraries;
 
-interface DataSourceStrategy
-{
-    public function getData($source, $path, array $params = []);
-}
+use Language\ApiCall;
 
-class SystemApiStrategy implements DataSourceStrategy
+class SystemApiStrategy implements DataSourceInterface
 {
     protected $serviceProvider;
 

@@ -1,10 +1,11 @@
 <?php
 
 use Language\Config;
-use Language\SystemApiStrategy;
+use Language\ApiCall;
+use Language\Libraries\SystemApiStrategy;
 use PHPUnit_Framework_TestCase as TestCase;
 
-class ApiCallFalse extends \Language\ApiCall
+class ApiCallFalse extends ApiCall
 {
     public static function call($target, $mode, $getParameters, $postParameters)
     {

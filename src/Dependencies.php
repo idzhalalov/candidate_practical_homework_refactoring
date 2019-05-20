@@ -7,8 +7,8 @@ class Dependencies
 {
     protected static $instances = [];
     protected static $dependencies = [
-        'DATA_SERVICE_PROVIDER' => 'Language\SystemApiStrategy',
-        'OUTPUT_PROVIDER' => 'Language\StdOutStrategy'
+        'DATA_SERVICE_PROVIDER' => 'Language\Libraries\SystemApiStrategy',
+        'OUTPUT_PROVIDER' => 'Language\Libraries\StdOutStrategy'
     ];
 
     public static function getInstance($key) {
