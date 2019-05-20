@@ -6,7 +6,8 @@ namespace Language;
 class Dependencies
 {
     protected static $instances = [];
-    protected static $dependencies = [
+
+    public static $classMapping = [
         'DATA_SERVICE_PROVIDER' => 'Language\Libraries\SystemApiStrategy',
         'OUTPUT_PROVIDER' => 'Language\Libraries\StdOutStrategy',
         'API_CALL' => 'Language\ApiCall',
@@ -14,11 +15,9 @@ class Dependencies
 
     protected static function hasDependency($key)
     {
-        if ( ! isset(self::$dependencies[$key])) {
-            return false;
+        if ( ! isset(self::$classMapping[$key])) {
+            throw new \Exception('Unknown dependency ' . $key);
         }
-
-        return true;
     }
 
     protected static function hasInstance($key)
@@ -32,12 +31,10 @@ class Dependencies
 
     public static function getInstance($key)
     {
-        if ( ! self::hasDependency($key)) {
-            throw new \Exception('Unknown dependency ' . $key);
-        }
+        self::hasDependency($key);
 
         if ( ! self::hasInstance($key)) {
-            self::$instances[$key] = new self::$dependencies[$key]();
+            self::$instances[$key] = new self::$classMapping[$key]();
         }
 
         return self::$instances[$key];
@@ -45,10 +42,8 @@ class Dependencies
 
     public static function getClass($key)
     {
-        if ( ! self::hasDependency($key)) {
-            throw new \Exception('Unknown dependency ' . $key);
-        }
+        self::hasDependency($key);
 
-        return self::$dependencies[$key];
+        return self::$classMapping[$key];
     }
 }
