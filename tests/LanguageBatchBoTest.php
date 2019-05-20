@@ -1,8 +1,8 @@
 <?php
 
-use PHPUnit_Framework_TestCase as TestCase;
 use Language\Config;
 use Language\ApiCall;
+use PHPUnit_Framework_TestCase as TestCase;
 
 class LanguageBatchBoTest extends TestCase
 {
