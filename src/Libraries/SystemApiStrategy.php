@@ -3,6 +3,7 @@
 namespace Language\Libraries;
 
 use Language\ApiCall;
+use Language\Dependencies;
 
 class SystemApiStrategy implements DataSourceInterface
 {
@@ -12,7 +13,7 @@ class SystemApiStrategy implements DataSourceInterface
     {
         $this->serviceProvider = $serviceProvider;
         if ($this->serviceProvider === null) {
-            $this->serviceProvider = ApiCall::class;
+            $this->serviceProvider = Dependencies::getClass('API_CALL');
         }
     }
 

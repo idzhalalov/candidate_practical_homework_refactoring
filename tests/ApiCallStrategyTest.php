@@ -5,7 +5,18 @@ use Language\ApiCall;
 use Language\Libraries\SystemApiStrategy;
 use PHPUnit_Framework_TestCase as TestCase;
 
-class ApiCallFalse extends ApiCall
+class FakeApiCall extends ApiCall
+{
+    public static function call($target, $mode, $getParameters, $postParameters)
+    {
+        return [
+            'status' => 'OK',
+            'data'   => 'File data',
+        ];
+    }
+}
+
+class ApiCallFalse extends FakeApiCall
 {
     public static function call($target, $mode, $getParameters, $postParameters)
     {
@@ -49,7 +60,7 @@ class ApiCallStrategyTest extends TestCase
 
     public function testGet()
     {
-        $result = (new SystemApiStrategy())->getData(
+        $result = (new SystemApiStrategy(new FakeApiCall()))->getData(
             'LanguageFiles',
             'getAppletLanguages',
             $this->apiCallOptions
