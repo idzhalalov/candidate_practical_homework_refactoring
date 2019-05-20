@@ -1,5 +1,7 @@
 <?php
 
+namespace Language\Tests;
+
 use Language\Config;
 use Language\ApiCall;
 use Language\Libraries\SystemApiStrategy;

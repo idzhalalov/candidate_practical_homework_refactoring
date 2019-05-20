@@ -1,7 +1,10 @@
 <?php
 
+namespace Language\Tests;
+
 use Language\Config;
 use Language\ApiCall;
+use Language\LanguageBatchBo;
 use PHPUnit_Framework_TestCase as TestCase;
 
 class LanguageBatchBoTest extends TestCase
@@ -11,7 +14,7 @@ class LanguageBatchBoTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->langBatchBo = new \Language\LanguageBatchBo();
+        $this->langBatchBo = new LanguageBatchBo();
         $this->applications = Config::get('system.translated_applications');
         $this->cachePath = __DIR__ . '/..' . $this->langBatchBo::CACHE_PATH;
         $this->XMLPath = __DIR__ . '/..' . $this->langBatchBo::XML_FILES_PATH;
