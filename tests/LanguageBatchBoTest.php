@@ -14,10 +14,10 @@ class LanguageBatchBoTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->langBatchBo = new LanguageBatchBo();
+        $this->langBatchBo = LanguageBatchBo::class;
         $this->applications = Config::get('system.translated_applications');
-        $this->cachePath = __DIR__ . '/..' . $this->langBatchBo::CACHE_PATH;
-        $this->XMLPath = __DIR__ . '/..' . $this->langBatchBo::XML_FILES_PATH;
+        $this->cachePath = Config::get('system.paths.root') . $this->langBatchBo::CACHE_PATH;
+        $this->XMLPath = Config::get('system.paths.root') . $this->langBatchBo::XML_FILES_PATH;
     }
 
     public function tearDown()
@@ -66,7 +66,7 @@ class LanguageBatchBoTest extends TestCase
 
     public function testGenerateLangFiles()
     {
-        $this->langBatchBo->generateLanguageFiles();
+        $this->langBatchBo::generateLanguageFiles();
 
         foreach($this->applications as $application => $languages) {
             foreach($languages as $language) {
@@ -81,7 +81,7 @@ class LanguageBatchBoTest extends TestCase
 
     public function testLangFilesContent()
     {
-        $this->langBatchBo->generateLanguageFiles();
+        $this->langBatchBo::generateLanguageFiles();
 
         foreach($this->applications as $application => $languages) {
             foreach($languages as $language) {
@@ -105,7 +105,7 @@ class LanguageBatchBoTest extends TestCase
 
     public function testGenerateAppletLangFiles()
     {
-        $this->langBatchBo->generateAppletLanguageXmlFiles();
+        $this->langBatchBo::generateAppletLanguageXmlFiles();
 
         foreach ($this->langBatchBo::APPLETS as $appletDirectory => $appletLanguageId) {
             $appletLanguages = $this->getDataViaAPI(
@@ -122,7 +122,7 @@ class LanguageBatchBoTest extends TestCase
 
     public function testAppletLangFilesContent()
     {
-        $this->langBatchBo->generateAppletLanguageXmlFiles();
+        $this->langBatchBo::generateAppletLanguageXmlFiles();
 
         foreach ($this->langBatchBo::APPLETS as $appletDirectory => $appletLanguageId) {
             $appletLanguages = $this->getDataViaAPI(

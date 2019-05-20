@@ -14,7 +14,6 @@ class LanguageBatchBo
         'memberapplet' => 'JSM2_MemberApplet',
     ];
 
-    protected static $dataService, $outputService;
     protected static $applications = [];
 
     protected static function dataService()
