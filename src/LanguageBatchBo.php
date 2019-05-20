@@ -160,18 +160,12 @@ class LanguageBatchBo
 	 */
 	protected static function getAppletLanguages($applet)
 	{
-		$result = ApiCall::call(
-			'system_api',
-			'language_api',
-			array(
-				'system' => 'LanguageFiles',
-				'action' => 'getAppletLanguages'
-			),
-			array('applet' => $applet)
-		);
-
 		try {
-			self::checkForApiErrorResult($result);
+            $result = self::dataService()->getData(
+                'LanguageFiles',
+                'getAppletLanguages',
+                ['applet' => $applet]
+            );
 		}
 		catch (\Exception $e) {
 			throw new \Exception('Getting languages for applet (' . $applet . ') was unsuccessful ' . $e->getMessage());
@@ -193,20 +187,16 @@ class LanguageBatchBo
 	 */
 	protected static function getAppletLanguageFile($applet, $language)
 	{
-		$result = ApiCall::call(
-			'system_api',
-			'language_api',
-			array(
-				'system' => 'LanguageFiles',
-				'action' => 'getAppletLanguageFile'
-			),
-			array(
-				'applet' => $applet,
-				'language' => $language
-			)
-		);
-
-        if (!$result) {
+	    try {
+            $result = self::dataService()->getData(
+                'LanguageFiles',
+                'getAppletLanguageFile',
+                [
+                    'applet'   => $applet,
+                    'language' => $language
+                ]
+            );
+        } catch (\Exception $e) {
             throw new \Exception(
                 "Getting language xml for applet: (' . $applet . ') on language: (' . $language . ') was unsuccessful:\n".
                 self::dataService()->errors()

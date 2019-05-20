@@ -92,7 +92,10 @@ class LanguageBatchBoTest extends TestCase
                     ['language' => $language]
                 );
 
-                self::assertTrue($content == $resp['data']);
+                self::assertTrue(
+                    $content == $resp['data'],
+                    'Expected: ' . $resp['data']
+                );
             }
         }
     }
