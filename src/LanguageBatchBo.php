@@ -10,28 +10,21 @@ class LanguageBatchBo
     const CACHE_PATH = '/cache';
     const APPLET_FILE_PREFIX = 'lang_';
     const XML_FILES_PATH = self::CACHE_PATH . '/flash';
-    const DATA_SERVICE_PROVIDER = 'Language\SystemApiStrategy';
     const APPLETS = [
         'memberapplet' => 'JSM2_MemberApplet',
     ];
 
-    protected static $dataService;
+    protected static $dataService, $outputService;
     protected static $applications = [];
 
     protected static function dataService()
     {
-        if (self::$dataService === null) {
-            $className = self::DATA_SERVICE_PROVIDER;
-            self::$dataService = new $className();
+        return Dependencies::getInstance('DATA_SERVICE_PROVIDER');
+    }
 
-            if (!self::$dataService instanceof DataSourceStrategy) {
-                throw new \Exception(
-                    __CLASS__ . '::DATA_SERVICE_PROVIDER must be an instance of ' . __NAMESPACE__ . '\DataSourceStrategy'
-                );
-            }
-        }
-
-        return self::$dataService;
+    protected static function output()
+    {
+        return Dependencies::getInstance('OUTPUT_PROVIDER');
     }
 
     /**
@@ -43,23 +36,21 @@ class LanguageBatchBo
      */
     public static function generateLanguageFiles()
     {
-        // The applications where we need to translate.
+        self::output()->print("\nGenerating language files:");
         self::$applications = Config::get('system.translated_applications');
 
-        echo "\nGenerating language files\n";
+        // The applications where we need to translate
         foreach (self::$applications as $application => $languages) {
-            echo "[APPLICATION: " . $application . "]\n";
+            self::output()->print("[APPLICATION: " . $application . "]", 2);
+
             foreach ($languages as $language) {
-                echo "\t[LANGUAGE: " . $language . "]";
+                self::output()->print("[LANGUAGE: " . $language . "]", 4);
 
                 try {
-                    self::getLanguageFile($application, $language);
-                    echo " OK\n";
+                    $fName = self::generateLanguageFile($application, $language);
+                    self::output()->print("- $fName ... ok", 6);
                 } catch (\Exception $e) {
-                    throw new \Exception(
-                        "Unable to generate language file!\n" .
-                        $e->getMessage()
-                    );
+                    self::output()->print("- $fName ... fail ({$e->getMessage()})", 6);
                 }
             }
         }
@@ -72,8 +63,10 @@ class LanguageBatchBo
      * @param string $language    The identifier of the language.
      *
      * @throws \Exception If there was an error during the download of the language file.
+     *
+     * @return string Generated file name
      */
-    protected static function getLanguageFile($application, $language)
+    protected static function generateLanguageFile($application, $language)
     {
         try {
             $languageResponse = self::dataService()->getData(
@@ -83,28 +76,26 @@ class LanguageBatchBo
             );
         } catch (\Exception $e) {
             throw new \Exception(
-                "Error during getting language file: (' . $application . '/' . $language . '):\n" .
+                "Error during getting language file: ($application/$language):\n" .
                 $e->getMessage()
             );
         }
 
-        // If we got correct data we store it.
+        // If we got correct data we store it
         $destination = Config::get('system.paths.root')
             . self::CACHE_PATH . '/'
             . $application . '/'
             . $language . '.php';
 
-        // If there is no folder yet, we'll create it.
-        var_dump($destination);
-
         try {
             self::storeLanguageFile($languageResponse['data'], $destination);
-            echo " OK saving $destination was successful.\n";
         } catch (\Exception $e) {
             throw new \Exception(
-                "Unable to save \"$destination\" for language \"$language\": "
-                . $e->getMessage());
+                "Unable to save \"$destination\" for language \"$language\": " .
+                $e->getMessage());
         }
+
+        return $destination;
     }
 
     /**
@@ -116,21 +107,25 @@ class LanguageBatchBo
      */
     public static function generateAppletLanguageXmlFiles()
     {
-        echo "\nGetting applet language XMLs..\n";
+        $path = Config::get('system.paths.root') . self::XML_FILES_PATH . '/';
+        self::output()->print("\nGenerating applet language files (XMLs):");
 
         foreach (self::APPLETS as $appletDirectory => $appletLanguageId) {
-            echo " Getting > $appletLanguageId ($appletDirectory) language xmls..\n";
+            self::output()->print("[APPLET: $appletLanguageId -> $appletDirectory]", 2);
 
             $languages = self::getAppletLanguages($appletLanguageId);
             if (empty($languages)) {
-                throw new \Exception('There is no available languages for the '
-                    . $appletLanguageId . ' applet.');
+                self::output()->print(
+                    'There is no available languages for the ' .
+                    $appletLanguageId . ' applet.');
+                return;
             } else {
-                echo ' - Available languages: ' . implode(', ', $languages)
-                    . "\n";
+                self::output()->print(
+                    '[LANGUAGES: ' . implode(', ', $languages) . ']',
+                    4
+                );
             }
 
-            $path = Config::get('system.paths.root') . self::XML_FILES_PATH . '/';
             foreach ($languages as $language) {
                 $xmlFile = $path . self::APPLET_FILE_PREFIX . $language . '.xml';
                 $xmlContent = self::getAppletLanguageFile(
@@ -140,18 +135,15 @@ class LanguageBatchBo
 
                 try {
                     self::storeLanguageFile($xmlContent, $xmlFile);
-                    echo " OK saving $xmlFile was successful.\n";
+                    self::output()->print("- $xmlFile ... ok", 6);
                 } catch (\Exception $e) {
-                    throw new \Exception(
-                        "Unable to save \"$xmlFile\" for applet \"$appletLanguageId\": "
-                        . $e->getMessage());
+                    self::output()->print(
+                        "- $xmlFile ... fail (applet \"$appletLanguageId\": {$e->getMessage()})",
+                        6
+                    );
                 }
             }
-
-            echo " < $appletLanguageId ($appletDirectory) language xml cached.\n";
         }
-
-        echo "\nApplet language XMLs generated.\n";
     }
 
     /**
@@ -222,3 +214,4 @@ class LanguageBatchBo
         }
     }
 }
+
