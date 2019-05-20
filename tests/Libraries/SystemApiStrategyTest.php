@@ -40,7 +40,7 @@ class ApiCallData extends ApiCallFalse
     }
 }
 
-class ApiCallStrategyTest extends TestCase
+class SystemApiStrategyTest extends TestCase
 {
     protected $applications, $apiCallOptions;
 
