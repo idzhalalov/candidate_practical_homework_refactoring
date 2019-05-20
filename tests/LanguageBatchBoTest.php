@@ -6,14 +6,15 @@ use PHPUnit_Framework_TestCase as TestCase;
 
 class LanguageBatchBoTest extends TestCase
 {
-    protected $langBatchBo, $applications, $cachePath;
+    protected $langBatchBo, $applications, $cachePath, $XMLPath;
 
     public function setUp()
     {
         parent::setUp();
         $this->langBatchBo = new \Language\LanguageBatchBo();
         $this->applications = Config::get('system.translated_applications');
-        $this->cachePath = __DIR__ . '/../cache/';
+        $this->cachePath = __DIR__ . '/..' . $this->langBatchBo::CACHE_PATH;
+        $this->XMLPath = __DIR__ . '/..' . $this->langBatchBo::XML_FILES_PATH;
     }
 
     public function tearDown()
@@ -23,8 +24,9 @@ class LanguageBatchBoTest extends TestCase
         // cleanup cached language files
         foreach($this->applications as $application => $languages) {
             foreach ($languages as $language) {
-                $fName = $this->cachePath . $application . '/' . $language
-                    . '.php';
+                $fName = $this->cachePath . '/'
+                    . $application . '/'
+                    . $language . '.php';
                 if (file_exists($fName)) {
                     unlink($fName);
                 }
@@ -32,21 +34,30 @@ class LanguageBatchBoTest extends TestCase
         }
 
         // cleanup cached applet language files
-        $fName = $this->cachePath . 'flash/' . 'lang_en.xml';
-        if (file_exists($fName)) {
-            unlink($fName);
+        foreach ($this->langBatchBo::APPLETS as $appletDirectory => $appletLanguageId) {
+            $appletLanguages = $this->getDataViaAPI(
+                'getAppletLanguages',
+                ['applet' => $appletLanguageId]
+            );
+
+            foreach ($appletLanguages['data'] as $language) {
+                $fName = $this->XMLPath . '/lang_' . $language . '.xml';
+                if (file_exists($fName)) {
+                    unlink($fName);
+                }
+            }
         }
     }
 
-    protected function getLanguageFileContent($language) {
+    protected function getDataViaAPI($action, array $params = []) {
         return ApiCall::call(
             'system_api',
             'language_api',
             array(
                 'system' => 'LanguageFiles',
-                'action' => 'getLanguageFile'
+                'action' => $action
             ),
-            array('language' => $language)
+            $params
         );
     }
 
@@ -57,7 +68,9 @@ class LanguageBatchBoTest extends TestCase
         foreach($this->applications as $application => $languages) {
             foreach($languages as $language) {
                 self::assertTrue(file_exists(
-                    $this->cachePath . $application . '/' . $language . '.php'
+                    $this->cachePath . '/'
+                    . $application . '/'
+                    . $language . '.php'
                 ));
             }
         }
@@ -70,11 +83,59 @@ class LanguageBatchBoTest extends TestCase
         foreach($this->applications as $application => $languages) {
             foreach($languages as $language) {
                 $content = file_get_contents(
-                    $this->cachePath . $application . '/' . $language . '.php'
+                    $this->cachePath . '/'
+                    . $application . '/'
+                    . $language . '.php'
+                );
+                $resp = $this->getDataViaAPI(
+                    'getLanguageFile',
+                    ['language' => $language]
                 );
 
-                $languageResponse = $this->getLanguageFileContent($language);
-                self::assertTrue($content == $languageResponse['data']);
+                self::assertTrue($content == $resp['data']);
+            }
+        }
+    }
+
+    public function testGenerateAppletLangFiles()
+    {
+        $this->langBatchBo->generateAppletLanguageXmlFiles();
+
+        foreach ($this->langBatchBo::APPLETS as $appletDirectory => $appletLanguageId) {
+            $appletLanguages = $this->getDataViaAPI(
+                'getAppletLanguages',
+                ['applet' => $appletLanguageId]
+            );
+
+            foreach ($appletLanguages['data'] as $language) {
+                $fName = $this->XMLPath . '/lang_' . $language . '.xml';
+                self::assertTrue(file_exists($fName), 'File: ' . $fName);
+            }
+        }
+    }
+
+    public function testAppletLangFilesContent()
+    {
+        $this->langBatchBo->generateAppletLanguageXmlFiles();
+
+        foreach ($this->langBatchBo::APPLETS as $appletDirectory => $appletLanguageId) {
+            $appletLanguages = $this->getDataViaAPI(
+                'getAppletLanguages',
+                ['applet' => $appletLanguageId]
+            );
+
+            foreach ($appletLanguages['data'] as $language) {
+                $fName = $this->XMLPath . '/lang_' . $language . '.xml';
+                $content =  file_get_contents($fName);
+                $resp = $this->getDataViaAPI(
+                    'getAppletLanguageFile',
+                    [
+                        'applet' => $appletLanguageId,
+                        'language' => $language
+                    ]
+                );
+
+                self::assertTrue($content === $resp['data']);
             }
         }
     }

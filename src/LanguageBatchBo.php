@@ -7,8 +7,11 @@ namespace Language;
  */
 class LanguageBatchBo
 {
-    const CACHE_PATH = '/cache/';
+    const CACHE_PATH = '/cache';
     const XML_FILES_PATH = self::CACHE_PATH . '/flash';
+    const APPLETS =  [
+        'memberapplet' => 'JSM2_MemberApplet',
+    ];
 
     /**
 	 * Contains the applications which ones require translations.
@@ -102,7 +105,7 @@ class LanguageBatchBo
 	 */
 	protected static function getLanguageCachePath($application)
 	{
-		return Config::get('system.paths.root') . self::CACHE_PATH . $application. '/';
+		return Config::get('system.paths.root') . self::CACHE_PATH . '/' . $application. '/';
 	}
 
 	/**
@@ -114,14 +117,9 @@ class LanguageBatchBo
 	 */
 	public static function generateAppletLanguageXmlFiles()
 	{
-		// List of the applets [directory => applet_id].
-		$applets = array(
-			'memberapplet' => 'JSM2_MemberApplet',
-		);
-
 		echo "\nGetting applet language XMLs..\n";
 
-		foreach ($applets as $appletDirectory => $appletLanguageId) {
+		foreach (self::APPLETS as $appletDirectory => $appletLanguageId) {
 			echo " Getting > $appletLanguageId ($appletDirectory) language xmls..\n";
 			$languages = self::getAppletLanguages($appletLanguageId);
 			if (empty($languages)) {
@@ -131,7 +129,7 @@ class LanguageBatchBo
 				echo ' - Available languages: ' . implode(', ', $languages) . "\n";
 			}
 
-			$path = Config::get('system.paths.root') . '/'. self::XML_FILES_PATH;
+			$path = Config::get('system.paths.root') . self::XML_FILES_PATH;
 			foreach ($languages as $language) {
 				$xmlContent = self::getAppletLanguageFile($appletLanguageId, $language);
 				$xmlFile    = $path . '/lang_' . $language . '.xml';
@@ -208,13 +206,12 @@ class LanguageBatchBo
 			)
 		);
 
-		try {
-			self::checkForApiErrorResult($result);
-		}
-		catch (\Exception $e) {
-			throw new \Exception('Getting language xml for applet: (' . $applet . ') on language: (' . $language . ') was unsuccessful: '
-				. $e->getMessage());
-		}
+        if (!$result) {
+            throw new \Exception(
+                "Getting language xml for applet: (' . $applet . ') on language: (' . $language . ') was unsuccessful:\n".
+                self::dataService()->errors()
+            );
+        }
 
 		return $result['data'];
 	}
