@@ -7,9 +7,6 @@ namespace Language;
  */
 class LanguageBatchBo
 {
-
-    protected static $applications = [];
-
     /**
      * Starts the language file generation.
      *
@@ -20,12 +17,12 @@ class LanguageBatchBo
     public static function generateLanguageFiles()
     {
         self::output()->print("\nGenerating language files:");
-        self::$applications = self::settings('APPLICATIONS');
 
-        // The applications where we need to translate
-        foreach (self::$applications as $application => $languages) {
+        // Applications
+        foreach (self::settings('APPLICATIONS') as $application => $languages) {
             self::output()->print("[APPLICATION: " . $application . "]", 2);
 
+            // Languages
             foreach ($languages as $language) {
                 self::output()->print("[LANGUAGE: " . $language . "]", 4);
 
@@ -147,8 +144,10 @@ class LanguageBatchBo
                 ['applet' => $applet]
             );
         } catch (\Exception $e) {
-            throw new \Exception('Getting languages for applet (' . $applet
-                . ') was unsuccessful ' . $e->getMessage());
+            throw new \Exception(
+                "Getting languages for applet 
+                ($applet) was unsuccessful {$e->getMessage()}"
+            );
         }
 
         return $result['data'];
@@ -178,9 +177,9 @@ class LanguageBatchBo
             );
         } catch (\Exception $e) {
             throw new \Exception(
-                "Getting language xml for applet: (' . $applet . ') on language: (' . $language . ') was unsuccessful:\n"
-                .
-                self::dataService()->errors()
+                "Getting language xml for applet: 
+                ($applet) on language: ($language) was unsuccessful:\n
+                {self::dataService()->errors()}"
             );
         }
 
