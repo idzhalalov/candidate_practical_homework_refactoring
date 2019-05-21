@@ -11,6 +11,7 @@ class Dependencies
         'DATA_SERVICE_PROVIDER' => 'Language\Libraries\SystemApiStrategy',
         'OUTPUT_PROVIDER' => 'Language\Libraries\StdOutStrategy',
         'API_CALL' => 'Language\ApiCall',
+        'SETTINGS' => 'Language\LanguageBatchBoSettings',
     ];
 
     protected static function hasDependency($key)

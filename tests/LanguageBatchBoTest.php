@@ -2,22 +2,31 @@
 
 namespace Language\Tests;
 
-use Language\Config;
 use Language\ApiCall;
 use Language\LanguageBatchBo;
+use Language\Dependencies;
 use PHPUnit_Framework_TestCase as TestCase;
 
 class LanguageBatchBoTest extends TestCase
 {
-    protected $langBatchBo, $applications, $cachePath, $XMLPath;
+    protected $langBatchBo, $applications, $cachePath, $XMLPath, $settings;
+
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+    }
 
     public function setUp()
     {
         parent::setUp();
+
         $this->langBatchBo = LanguageBatchBo::class;
-        $this->applications = Config::get('system.translated_applications');
-        $this->cachePath = Config::get('system.paths.root') . $this->langBatchBo::CACHE_PATH;
-        $this->XMLPath = Config::get('system.paths.root') . $this->langBatchBo::XML_FILES_PATH;
+        $this->settings = Dependencies::getInstance('SETTINGS');
+        $this->settings->set('CACHE_PATH', '/tests/cache');
+
+        $this->applications = $this->settings->APPLICATIONS;
+        $this->cachePath = $this->settings->ROOT_PATH . $this->settings->CACHE_PATH;
+        $this->XMLPath = $this->settings->ROOT_PATH . $this->settings->XML_FILES_PATH;
     }
 
     public function tearDown()
@@ -37,7 +46,7 @@ class LanguageBatchBoTest extends TestCase
         }
 
         // cleanup cached applet language files
-        foreach ($this->langBatchBo::APPLETS as $appletDirectory => $appletLanguageId) {
+        foreach ($this->settings->APPLETS as $appletDirectory => $appletLanguageId) {
             $appletLanguages = $this->getDataViaAPI(
                 'getAppletLanguages',
                 ['applet' => $appletLanguageId]
@@ -107,7 +116,7 @@ class LanguageBatchBoTest extends TestCase
     {
         $this->langBatchBo::generateAppletLanguageXmlFiles();
 
-        foreach ($this->langBatchBo::APPLETS as $appletDirectory => $appletLanguageId) {
+        foreach ($this->settings->APPLETS as $appletDirectory => $appletLanguageId) {
             $appletLanguages = $this->getDataViaAPI(
                 'getAppletLanguages',
                 ['applet' => $appletLanguageId]
@@ -124,7 +133,7 @@ class LanguageBatchBoTest extends TestCase
     {
         $this->langBatchBo::generateAppletLanguageXmlFiles();
 
-        foreach ($this->langBatchBo::APPLETS as $appletDirectory => $appletLanguageId) {
+        foreach ($this->settings->APPLETS as $appletDirectory => $appletLanguageId) {
             $appletLanguages = $this->getDataViaAPI(
                 'getAppletLanguages',
                 ['applet' => $appletLanguageId]

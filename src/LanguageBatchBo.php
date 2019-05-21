@@ -7,24 +7,8 @@ namespace Language;
  */
 class LanguageBatchBo
 {
-    const CACHE_PATH = '/cache';
-    const APPLET_FILE_PREFIX = 'lang_';
-    const XML_FILES_PATH = self::CACHE_PATH . '/flash';
-    const APPLETS = [
-        'memberapplet' => 'JSM2_MemberApplet',
-    ];
 
     protected static $applications = [];
-
-    protected static function dataService()
-    {
-        return Dependencies::getInstance('DATA_SERVICE_PROVIDER');
-    }
-
-    protected static function output()
-    {
-        return Dependencies::getInstance('OUTPUT_PROVIDER');
-    }
 
     /**
      * Starts the language file generation.
@@ -36,7 +20,7 @@ class LanguageBatchBo
     public static function generateLanguageFiles()
     {
         self::output()->print("\nGenerating language files:");
-        self::$applications = Config::get('system.translated_applications');
+        self::$applications = self::settings('APPLICATIONS');
 
         // The applications where we need to translate
         foreach (self::$applications as $application => $languages) {
@@ -81,8 +65,8 @@ class LanguageBatchBo
         }
 
         // If we got correct data we store it
-        $destination = Config::get('system.paths.root')
-            . self::CACHE_PATH . '/'
+        $destination = self::settings('ROOT_PATH')
+            . self::settings('CACHE_PATH') . '/'
             . $application . '/'
             . $language . '.php';
 
@@ -106,10 +90,10 @@ class LanguageBatchBo
      */
     public static function generateAppletLanguageXmlFiles()
     {
-        $path = Config::get('system.paths.root') . self::XML_FILES_PATH . '/';
+        $path = self::settings('ROOT_PATH') . self::settings('XML_FILES_PATH') . '/';
         self::output()->print("\nGenerating applet language files (XMLs):");
 
-        foreach (self::APPLETS as $appletDirectory => $appletLanguageId) {
+        foreach (self::settings('APPLETS') as $appletDirectory => $appletLanguageId) {
             self::output()->print("[APPLET: $appletLanguageId -> $appletDirectory]", 2);
 
             $languages = self::getAppletLanguages($appletLanguageId);
@@ -126,7 +110,7 @@ class LanguageBatchBo
             }
 
             foreach ($languages as $language) {
-                $xmlFile = $path . self::APPLET_FILE_PREFIX . $language . '.xml';
+                $xmlFile = $path . self::settings('APPLET_FILE_PREFIX') . $language . '.xml';
                 $xmlContent = self::getAppletLanguageFile(
                     $appletLanguageId,
                     $language
@@ -211,6 +195,21 @@ class LanguageBatchBo
         if (!strlen($content) == file_put_contents($destination, $content)) {
             throw new \Exception('Unable to save file: ' . $destination);
         }
+    }
+
+    protected static function dataService()
+    {
+        return Dependencies::getInstance('DATA_SERVICE_PROVIDER');
+    }
+
+    protected static function output()
+    {
+        return Dependencies::getInstance('OUTPUT_PROVIDER');
+    }
+
+    protected static function settings($key)
+    {
+        return Dependencies::getInstance('SETTINGS')->get($key);
     }
 }
 
