@@ -61,12 +61,12 @@ class LanguageBatchBo
             );
         }
 
-        // If we got correct data we store it
         $destination = self::settings('ROOT_PATH')
             . self::settings('CACHE_PATH') . '/'
             . $application . '/'
             . $language . '.php';
 
+        // Save a language file
         try {
             self::storeLanguageFile($languageResponse['data'], $destination);
         } catch (\Exception $e) {
@@ -90,15 +90,18 @@ class LanguageBatchBo
         $path = self::settings('ROOT_PATH') . self::settings('XML_FILES_PATH') . '/';
         self::output()->print("\nGenerating applet language files (XMLs):");
 
+        // Applets
         foreach (self::settings('APPLETS') as $appletDirectory => $appletLanguageId) {
             self::output()->print("[APPLET: $appletLanguageId -> $appletDirectory]", 2);
 
+            // Languages
             $languages = self::getAppletLanguages($appletLanguageId);
             if (empty($languages)) {
                 self::output()->print(
-                    'There is no available languages for the ' .
-                    $appletLanguageId . ' applet.');
-                return;
+                    "There is no available languages 
+                    for the $appletLanguageId applet"
+                );
+                continue;
             } else {
                 self::output()->print(
                     '[LANGUAGES: ' . implode(', ', $languages) . ']',
@@ -107,12 +110,16 @@ class LanguageBatchBo
             }
 
             foreach ($languages as $language) {
-                $xmlFile = $path . self::settings('APPLET_FILE_PREFIX') . $language . '.xml';
+                $xmlFile = $path .
+                    self::settings('APPLET_FILE_PREFIX') .
+                    $language . '.xml';
+
                 $xmlContent = self::getAppletLanguageFile(
                     $appletLanguageId,
                     $language
                 );
 
+                // Save an applet language file
                 try {
                     self::storeLanguageFile($xmlContent, $xmlFile);
                     self::output()->print("- $xmlFile ... ok", 6);
