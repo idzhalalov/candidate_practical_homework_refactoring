@@ -3,8 +3,8 @@
 namespace Language\Tests;
 
 use Faker;
-use Language\Libraries\StdOutStrategy;
-use Language\Libraries\StdOutFormatter;
+use Language\Libraries\Output\StdOutStrategy;
+use Language\Libraries\Output\StdOutFormatter;
 use PHPUnit_Framework_TestCase as TestCase;
 
 class StdOutStrategyTest extends TestCase

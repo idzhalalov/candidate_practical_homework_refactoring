@@ -1,6 +1,6 @@
 <?php
 
-namespace Language\Libraries;
+namespace Language\Libraries\DataSource;
 
 use Language\ApiCall;
 use Language\Dependencies;

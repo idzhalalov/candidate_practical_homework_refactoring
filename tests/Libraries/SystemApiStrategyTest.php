@@ -4,7 +4,7 @@ namespace Language\Tests;
 
 use Language\Config;
 use Language\ApiCall;
-use Language\Libraries\SystemApiStrategy;
+use Language\Libraries\DataSource\SystemApiStrategy;
 use PHPUnit_Framework_TestCase as TestCase;
 
 class FakeApiCall extends ApiCall

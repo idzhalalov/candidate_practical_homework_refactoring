@@ -1,6 +1,6 @@
 <?php
 
-namespace Language\Libraries;
+namespace Language\Libraries\Output;
 
 class StdOutStrategy implements OutputInterface
 {

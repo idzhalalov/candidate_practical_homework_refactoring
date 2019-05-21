@@ -8,9 +8,9 @@ class Dependencies
     protected static $instances = [];
 
     public static $classMapping = [
-        'DATA_SERVICE_PROVIDER' => 'Language\Libraries\SystemApiStrategy',
+        'DATA_SERVICE_PROVIDER' => 'Language\Libraries\DataSource\SystemApiStrategy',
         'OUTPUT_PROVIDER' => [
-            'Language\Libraries\StdOutFormatter' => '\Language\Libraries\StdOutStrategy'
+            'Language\Libraries\Output\StdOutFormatter' => '\Language\Libraries\Output\StdOutStrategy'
         ],
         'API_CALL' => 'Language\ApiCall',
         'SETTINGS' => 'Language\LanguageBatchBoSettings',
