@@ -16,21 +16,21 @@ class LanguageBatchBo
      */
     public static function generateLanguageFiles()
     {
-        self::output()->print("\nGenerating language files:");
+        self::output()->send("\nGenerating language files:");
 
         // Applications
         foreach (self::settings('APPLICATIONS') as $application => $languages) {
-            self::output()->print("[APPLICATION: " . $application . "]", 2);
+            self::output()->send("\t[APPLICATION: " . $application . "]");
 
             // Languages
             foreach ($languages as $language) {
-                self::output()->print("[LANGUAGE: " . $language . "]", 4);
+                self::output()->send("\t\t[LANGUAGE: " . $language . "]");
 
                 try {
                     $fName = self::generateLanguageFile($application, $language);
-                    self::output()->print("- $fName ... ok", 6);
+                    self::output()->send("\t\t\t- $fName ... ok");
                 } catch (\Exception $e) {
-                    self::output()->print("- $fName ... fail ({$e->getMessage()})", 6);
+                    self::output()->send("\t\t\t- $fName ... fail ({$e->getMessage()})");
                 }
             }
         }
@@ -88,24 +88,23 @@ class LanguageBatchBo
     public static function generateAppletLanguageXmlFiles()
     {
         $path = self::settings('ROOT_PATH') . self::settings('XML_FILES_PATH') . '/';
-        self::output()->print("\nGenerating applet language files (XMLs):");
+        self::output()->send("\nGenerating applet language files (XMLs):");
 
         // Applets
         foreach (self::settings('APPLETS') as $appletDirectory => $appletLanguageId) {
-            self::output()->print("[APPLET: $appletLanguageId -> $appletDirectory]", 2);
+            self::output()->send("\t[APPLET: $appletLanguageId -> $appletDirectory]");
 
             // Languages
             $languages = self::getAppletLanguages($appletLanguageId);
             if (empty($languages)) {
-                self::output()->print(
-                    "There is no available languages 
+                self::output()->send(
+                    "\t\tThere is no available languages 
                     for the $appletLanguageId applet"
                 );
                 continue;
             } else {
-                self::output()->print(
-                    '[LANGUAGES: ' . implode(', ', $languages) . ']',
-                    4
+                self::output()->send(
+                    "\t\t" . '[LANGUAGES: ' . implode(', ', $languages) . ']'
                 );
             }
 
@@ -122,11 +121,10 @@ class LanguageBatchBo
                 // Save an applet language file
                 try {
                     self::storeLanguageFile($xmlContent, $xmlFile);
-                    self::output()->print("- $xmlFile ... ok", 6);
+                    self::output()->send("\t\t\t- $xmlFile ... ok");
                 } catch (\Exception $e) {
-                    self::output()->print(
-                        "- $xmlFile ... fail (applet \"$appletLanguageId\": {$e->getMessage()})",
-                        6
+                    self::output()->send(
+                        "\t\t\t- $xmlFile ... fail (applet \"$appletLanguageId\": {$e->getMessage()})"
                     );
                 }
             }

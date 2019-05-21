@@ -4,8 +4,11 @@ namespace Language\Libraries;
 
 class StdOutFormatter implements FormatterInterface
 {
+    protected $indentSymbol = '  ';
     public function format($data)
     {
-        return $data . "\n";
+        $result = str_replace("\t", $this->indentSymbol, $data) . "\n";
+
+        return $result;
     }
 }

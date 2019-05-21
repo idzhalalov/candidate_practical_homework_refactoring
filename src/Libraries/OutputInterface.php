@@ -4,5 +4,5 @@ namespace Language\Libraries;
 
 interface OutputInterface
 {
-    public function print($data);
+    public function send($data);
 }

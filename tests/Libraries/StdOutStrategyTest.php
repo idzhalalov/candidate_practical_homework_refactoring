@@ -24,25 +24,25 @@ class StdOutStrategyTest extends TestCase
         parent::tearDown();
     }
 
-    public function testPrint()
+    public function testSend()
     {
         $str = $this->faker->text;
 
         ob_start();
-        $this->output->print($str);
+        $this->output->send($str);
         $output = ob_get_clean();
 
         self::assertTrue($output === $str . "\n");
     }
 
-    public function testPrintIndent()
+    public function testSendAnd()
     {
         $str = $this->faker->text;
 
         ob_start();
-        $this->output->print($str, 2);
+        $this->output->send("\t\t" . $str);
         $output = ob_get_clean();
 
-        self::assertTrue($output === $this->formatter->format($str));
+        self::assertTrue($output === $this->formatter->format("\t\t" . $str));
     }
 }

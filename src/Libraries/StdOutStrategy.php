@@ -11,7 +11,7 @@ class StdOutStrategy implements OutputInterface
         $this->formatter = $formatter;
     }
 
-    public function print($data)
+    public function send($data)
     {
         echo $this->formatter->format($data);
     }
