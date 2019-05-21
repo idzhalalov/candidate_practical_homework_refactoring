@@ -4,16 +4,18 @@ namespace Language\Tests;
 
 use Faker;
 use Language\Libraries\StdOutStrategy;
+use Language\Libraries\StdOutFormatter;
 use PHPUnit_Framework_TestCase as TestCase;
 
 class StdOutStrategyTest extends TestCase
 {
-    protected $output, $faker;
+    protected $output, $faker, $formatter;
 
     public function setUp()
     {
         parent::setUp();
-        $this->output = new StdOutStrategy();
+        $this->formatter = new StdOutFormatter();
+        $this->output = new StdOutStrategy($this->formatter);
         $this->faker = Faker\Factory::create();
     }
 
@@ -41,7 +43,6 @@ class StdOutStrategyTest extends TestCase
         $this->output->print($str, 2);
         $output = ob_get_clean();
 
-        $str = str_repeat('  ', 2) . $str . "\n";
-        self::assertTrue($output === $str);
+        self::assertTrue($output === $this->formatter->format($str));
     }
 }

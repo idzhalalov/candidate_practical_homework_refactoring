@@ -9,7 +9,9 @@ class Dependencies
 
     public static $classMapping = [
         'DATA_SERVICE_PROVIDER' => 'Language\Libraries\SystemApiStrategy',
-        'OUTPUT_PROVIDER' => 'Language\Libraries\StdOutStrategy',
+        'OUTPUT_PROVIDER' => [
+            'Language\Libraries\StdOutFormatter' => '\Language\Libraries\StdOutStrategy'
+        ],
         'API_CALL' => 'Language\ApiCall',
         'SETTINGS' => 'Language\LanguageBatchBoSettings',
     ];
@@ -35,7 +37,16 @@ class Dependencies
         self::hasDependency($key);
 
         if ( ! self::hasInstance($key)) {
-            self::$instances[$key] = new self::$classMapping[$key]();
+
+            if (is_array(self::$classMapping[$key])) {
+                foreach (self::$classMapping[$key] as $k => $v) {
+                    self::$instances[$key] = new $v(new $k());
+                }
+            } else {
+                self::$instances[$key] = new self::$classMapping[$key]();
+            }
+
+
         }
 
         return self::$instances[$key];

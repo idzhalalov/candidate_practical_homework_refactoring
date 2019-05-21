@@ -4,9 +4,15 @@ namespace Language\Libraries;
 
 class StdOutStrategy implements OutputInterface
 {
-    public function print($data, $indent = 0)
+    protected $formatter;
+
+    public function __construct(FormatterInterface $formatter)
     {
-        $indent = ($indent > 0) ? str_repeat('  ', $indent) : '';
-        echo $indent . $data . "\n";
+        $this->formatter = $formatter;
+    }
+
+    public function print($data)
+    {
+        echo $this->formatter->format($data);
     }
 }
