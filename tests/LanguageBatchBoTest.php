@@ -23,6 +23,7 @@ class LanguageBatchBoTest extends TestCase
         $this->langBatchBo = LanguageBatchBo::class;
         $this->settings = Dependencies::getInstance('SETTINGS');
         $this->settings->set('CACHE_PATH', '/tests/cache');
+        $this->settings->set('XML_FILES_PATH', '/tests/cache/flash');
 
         $this->applications = $this->settings->APPLICATIONS;
         $this->cachePath = $this->settings->ROOT_PATH . $this->settings->CACHE_PATH;
