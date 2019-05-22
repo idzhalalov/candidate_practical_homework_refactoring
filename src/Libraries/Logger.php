@@ -1,4 +1,24 @@
 <?php
+/**
+ * Class logger
+ *
+ * Simple class which is implements basic logging functions.
+ * Mostly you will use log() and setLevel() methods.
+ *
+ * @example
+ * $logger = new logger('', 'ERROR');
+ *
+ * $logger->log('DB query error', 'error');
+ * $logger->log($mysqli->error, 'debug'); // will not be logging
+ *
+ * $logger->setLevel('debug');
+ * $logger->log($mysqli->error, 'debug'); // will be logging
+ * $logger->setLevel(); // reset the level
+ *
+ * @author idzhalalov@gmail.com
+ */
+
+
 namespace Language\Libraries;
 
 class Logger

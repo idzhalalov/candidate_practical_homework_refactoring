@@ -7,15 +7,15 @@ use Language\ApiCall;
 
 class FakeApiCall extends ApiCall
 {
-    public static $result;
+    public static $result = [];
 
     public static function call($target, $mode, $getParameters, $postParameters)
     {
-        return static::$result;
+        return array_pop(static::$result);
     }
 
-    public function setFakeResult($data)
+    public static function setFakeResult($data)
     {
-        static::$result = $data;
+        array_push(static::$result, $data);
     }
 }

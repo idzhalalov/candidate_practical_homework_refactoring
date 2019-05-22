@@ -21,9 +21,11 @@ class Dependencies
         ],
 
         # Logger strategy
-//        'OUTPUT_PROVIDER' => [
-//            'Language\Libraries\Output\LoggerFormatter' => '\Language\Libraries\Output\LoggerStrategy'
-//        ],
+        /*
+        'OUTPUT_PROVIDER' => [
+            'Language\Libraries\Output\LoggerFormatter' => '\Language\Libraries\Output\LoggerStrategy'
+        ],
+        */
     ];
 
     protected static function hasDependency($key)
@@ -47,7 +49,7 @@ class Dependencies
         self::hasDependency($key);
 
         if ( ! self::hasInstance($key)) {
-
+            // a parametrized item or a regular one
             if (is_array(self::$classMapping[$key])) {
                 foreach (self::$classMapping[$key] as $k => $v) {
                     $k = (class_exists($k)) ? new $k() : $k;
