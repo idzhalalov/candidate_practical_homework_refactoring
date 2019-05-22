@@ -3,52 +3,18 @@
 namespace Language\Tests;
 
 use Language\Config;
-use Language\ApiCall;
+use Language\Tests\Mocks\FakeApiCall;
 use Language\Libraries\DataSource\SystemApiStrategy;
 use PHPUnit_Framework_TestCase as TestCase;
 
-class FakeApiCall extends ApiCall
-{
-    public static function call($target, $mode, $getParameters, $postParameters)
-    {
-        return [
-            'status' => 'OK',
-            'data'   => 'File data',
-        ];
-    }
-}
-
-class ApiCallFalse extends FakeApiCall
-{
-    public static function call($target, $mode, $getParameters, $postParameters)
-    {
-        return false;
-    }
-}
-
-class ApiCallStatus extends ApiCallFalse
-{
-    public static function call($target, $mode, $getParameters, $postParameters)
-    {
-        return ['status' => 'not ok'];
-    }
-}
-
-class ApiCallData extends ApiCallFalse
-{
-    public static function call($target, $mode, $getParameters, $postParameters)
-    {
-        return ['status' => 1, 'data' => false];
-    }
-}
-
 class SystemApiStrategyTest extends TestCase
 {
-    protected $applications, $apiCallOptions;
+    protected $applications, $apiCallOptions, $fakeApiCall;
 
     public function setUp()
     {
         parent::setUp();
+        $this->fakeApiCall = new FakeApiCall();
         $this->applications = Config::get('system.translated_applications');
         $this->apiCallOptions = [
             ['language' => $this->applications[0][0]],
@@ -62,7 +28,12 @@ class SystemApiStrategyTest extends TestCase
 
     public function testGet()
     {
-        $result = (new SystemApiStrategy(new FakeApiCall()))->getData(
+        $this->fakeApiCall->setFakeResult([
+            'status' => 'OK',
+            'data'   => 'File data',
+        ]);
+
+        $result = (new SystemApiStrategy($this->fakeApiCall))->getData(
             'LanguageFiles',
             'getAppletLanguages',
             $this->apiCallOptions
@@ -72,7 +43,8 @@ class SystemApiStrategyTest extends TestCase
 
     public function testGetErrors()
     {
-        $api = new SystemApiStrategy(new ApiCallFalse());
+        $this->fakeApiCall->setFakeResult(false);
+        $api = new SystemApiStrategy($this->fakeApiCall);
 
         self::setExpectedException('Exception');
         $result = $api->getData(
@@ -86,7 +58,8 @@ class SystemApiStrategyTest extends TestCase
 
     public function testGetStatusErrors()
     {
-        $api = new SystemApiStrategy(new ApiCallStatus());
+        $this->fakeApiCall->setFakeResult(['status' => 'not ok']);
+        $api = new SystemApiStrategy($this->fakeApiCall);
 
         self::setExpectedException('Exception');
         $result = $api->getData(
@@ -100,7 +73,8 @@ class SystemApiStrategyTest extends TestCase
 
     public function testGetDataErrors()
     {
-        $api = new SystemApiStrategy(new ApiCallData());
+        $this->fakeApiCall->setFakeResult(['status' => 1, 'data' => false]);
+        $api = new SystemApiStrategy($this->fakeApiCall);
 
         self::setExpectedException('Exception');
         $api->getData(
