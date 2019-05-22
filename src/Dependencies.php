@@ -9,11 +9,21 @@ class Dependencies
 
     public static $classMapping = [
         'DATA_SERVICE_PROVIDER' => 'Language\Libraries\DataSource\SystemApiStrategy',
+        'API_CALL' => 'Language\ApiCall',
+        'SETTINGS' => 'Language\LanguageBatchBoSettings',
+        'LOGGER' => [
+            __DIR__ . '/../logs.log' => 'Language\Libraries\Logger'
+        ],
+
+        # STDOUT strategy
         'OUTPUT_PROVIDER' => [
             'Language\Libraries\Output\StdOutFormatter' => '\Language\Libraries\Output\StdOutStrategy'
         ],
-        'API_CALL' => 'Language\ApiCall',
-        'SETTINGS' => 'Language\LanguageBatchBoSettings',
+
+        # Logger strategy
+//        'OUTPUT_PROVIDER' => [
+//            'Language\Libraries\Output\LoggerFormatter' => '\Language\Libraries\Output\LoggerStrategy'
+//        ],
     ];
 
     protected static function hasDependency($key)
@@ -40,13 +50,12 @@ class Dependencies
 
             if (is_array(self::$classMapping[$key])) {
                 foreach (self::$classMapping[$key] as $k => $v) {
-                    self::$instances[$key] = new $v(new $k());
+                    $k = (class_exists($k)) ? new $k() : $k;
+                    self::$instances[$key] = new $v($k);
                 }
             } else {
                 self::$instances[$key] = new self::$classMapping[$key]();
             }
-
-
         }
 
         return self::$instances[$key];
