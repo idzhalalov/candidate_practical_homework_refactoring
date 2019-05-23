@@ -11,7 +11,7 @@ class FakeApiCall extends ApiCall
 
     public static function call($target, $mode, $getParameters, $postParameters)
     {
-        return array_pop(static::$result);
+        return array_shift(static::$result);
     }
 
     public static function setFakeResult($data)
