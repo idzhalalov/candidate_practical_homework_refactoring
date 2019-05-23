@@ -24,7 +24,7 @@ class SystemApiStrategy implements DataSourceInterface
      * @param string $path
      * @param array  $params
      *
-     * @throws \Exception
+     * @throws DataSourceException
      *
      * @return bool
      */
@@ -48,12 +48,12 @@ class SystemApiStrategy implements DataSourceInterface
     {
         // Error during the api call
         if ($result === false || !isset($result['status'])) {
-            throw new \Exception('Error during the api call');
+            throw new DataSourceException('Error during the api call');
         }
 
         // Wrong response
         if ($result['status'] != 'OK') {
-            throw new \Exception('Wrong response: '
+            throw new DataSourceException('Wrong response: '
                 . (!empty($result['error_type']) ? 'Type(' . $result['error_type'] . ') ' : '')
                 . (!empty($result['error_code']) ? 'Code(' . $result['error_code'] . ') ' : '')
                 . ((string)$result['data']));
@@ -61,7 +61,7 @@ class SystemApiStrategy implements DataSourceInterface
 
         // Wrong content
         if ($result['data'] === false) {
-            throw new \Exception('Wrong content!');
+            throw new DataSourceException('Wrong content!');
         }
     }
 }

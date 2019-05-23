@@ -2,6 +2,8 @@
 
 namespace Language;
 
+use Language\Libraries\DataSource\DataSourceException;
+
 /**
  * Business logic related to generating language files.
  */
@@ -9,8 +11,6 @@ class LanguageBatchBo
 {
     /**
      * Starts the language file generation.
-     *
-     * @throws \Exception
      *
      * @return void
      */
@@ -30,7 +30,7 @@ class LanguageBatchBo
                     $fName = self::generateLanguageFile($application, $language);
                     self::output()->send("\t\t\t- $fName ... ok");
                 } catch (\Exception $e) {
-                    self::output()->send("\t\t\t- $fName ... fail ({$e->getMessage()})");
+                    self::output()->send("\t\t\t- {$e->getMessage()}");
                 }
             }
         }
@@ -42,7 +42,8 @@ class LanguageBatchBo
      * @param string $application The name of the application.
      * @param string $language    The identifier of the language.
      *
-     * @throws \Exception If there was an error during the download of the language file.
+     * @throws DataSourceException If there was an error during the download of the language file
+     * @throws \Exception If there was an error during saving the language file
      *
      * @return string Generated file name
      */
@@ -54,8 +55,8 @@ class LanguageBatchBo
                 'getLanguageFile',
                 ['language' => $language]
             );
-        } catch (\Exception $e) {
-            throw new \Exception(
+        } catch (DataSourceException $e) {
+            throw new DataSourceException(
                 "Error during getting language file: ($application/$language):\n" .
                 $e->getMessage()
             );
@@ -81,8 +82,6 @@ class LanguageBatchBo
     /**
      * Gets the language files for the applet and puts them into the cache.
      *
-     * @throws \Exception   If there was an error.
-     *
      * @return void
      */
     public static function generateAppletLanguageXmlFiles()
@@ -92,14 +91,22 @@ class LanguageBatchBo
 
         // Applets
         foreach (self::settings('APPLETS') as $appletDirectory => $appletLanguageId) {
-            self::output()->send("\t[APPLET: $appletLanguageId -> $appletDirectory]");
+            self::output()->send("\t[APPLET: $appletDirectory -> $appletLanguageId]");
 
             // Languages
-            $languages = self::getAppletLanguages($appletLanguageId);
+            try {
+                $languages = self::getAppletLanguages($appletLanguageId);
+            } catch (DataSourceException $e) {
+                self::output()->send(
+                    "Error getting available languages for applet $appletLanguageId: " .
+                    $e->getMessage()
+                );
+                continue;
+            }
+
             if (empty($languages)) {
                 self::output()->send(
-                    "\t\tThere is no available languages 
-                    for the $appletLanguageId applet"
+                    "\t\tThere is no available languages for the $appletLanguageId applet"
                 );
                 continue;
             } else {
@@ -113,10 +120,15 @@ class LanguageBatchBo
                     self::settings('APPLET_FILE_PREFIX') .
                     $language . '.xml';
 
-                $xmlContent = self::getAppletLanguageFile(
-                    $appletLanguageId,
-                    $language
-                );
+                try {
+                    $xmlContent = self::getAppletLanguageFileContent(
+                        $appletLanguageId,
+                        $language
+                    );
+                } catch (DataSourceException $e) {
+                    self::output()->send("\t\t" . $e->getMessage());
+                    continue;
+                }
 
                 // Save an applet language file
                 try {
@@ -124,7 +136,7 @@ class LanguageBatchBo
                     self::output()->send("\t\t\t- $xmlFile ... ok");
                 } catch (\Exception $e) {
                     self::output()->send(
-                        "\t\t\t- $xmlFile ... fail (applet \"$appletLanguageId\": {$e->getMessage()})"
+                        "\t\t\t- $xmlFile ... fail (applet \"$appletLanguageId\"): {$e->getMessage()})"
                     );
                 }
             }
@@ -136,7 +148,7 @@ class LanguageBatchBo
      *
      * @param string $applet The applet identifier.
      *
-     * @throws \Exception
+     * @throws DataSourceException
      *
      * @return array   The list of the available applet languages.
      */
@@ -148,11 +160,8 @@ class LanguageBatchBo
                 'getAppletLanguages',
                 ['applet' => $applet]
             );
-        } catch (\Exception $e) {
-            throw new \Exception(
-                "Getting languages for applet 
-                ($applet) was unsuccessful {$e->getMessage()}"
-            );
+        } catch (DataSourceException $e) {
+            throw new DataSourceException($e);
         }
 
         return $result['data'];
@@ -165,11 +174,11 @@ class LanguageBatchBo
      * @param string $applet   The identifier of the applet.
      * @param string $language The language identifier.
      *
-     * @throws \Exception
+     * @throws DataSourceException
      *
      * @return string|false   The content of the language file or false if weren't able to get it.
      */
-    protected static function getAppletLanguageFile($applet, $language)
+    protected static function getAppletLanguageFileContent($applet, $language)
     {
         try {
             $result = self::dataService()->getData(
@@ -180,11 +189,11 @@ class LanguageBatchBo
                     'language' => $language,
                 ]
             );
-        } catch (\Exception $e) {
-            throw new \Exception(
-                "Getting language xml for applet: 
-                ($applet) on language: ($language) was unsuccessful:\n
-                {self::dataService()->errors()}"
+        } catch (DataSourceException $e) {
+            throw new DataSourceException(
+                'Getting language xml for applet ' .
+                "($applet) on language ($language) was unsuccessful: " .
+                $e->getMessage()
             );
         }
 
