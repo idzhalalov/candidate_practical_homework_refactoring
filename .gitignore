@@ -1,0 +1,7 @@
+vendor/
+
+cache/**/*.xml
+cache/**/*.php
+
+**.log
+**.txt

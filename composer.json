@@ -2,9 +2,13 @@
     "name": "exam/2015_Q3_senior",
     "description": "2015 Q3 Senior",
     "require": {
-        "phpunit/phpunit": "4.7.*"
+        "phpunit/phpunit": "^4.8",
+        "fzaninotto/faker": "^1.8"
     },
     "autoload": {
-        "psr-4": {"Language\\": "src/"}
+        "psr-4": {
+            "Language\\": "src/",
+            "Language\\Tests\\": "tests/"
+        }
     }
 }
